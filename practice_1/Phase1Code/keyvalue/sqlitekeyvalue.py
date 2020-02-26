@@ -34,10 +34,10 @@ class SqliteKeyValue():
         if not isinstance(key, basestring):
             raise TypeError('key must be of str type!')
         self._cur.execute('SELECT value FROM  {0} WHERE skey=?'.format(self._table), (key,))
-        row = self._cur.fetchone()
+        row = self._cur.fetchall()
         if row is None:
            return None
-        return row[0]
+        return row
 
     def close(self):
         self._con.commit()
