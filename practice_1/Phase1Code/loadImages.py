@@ -1,6 +1,7 @@
 import keyvalue.sqlitekeyvalue as KeyValue
 import keyvalue.parsetriples as ParseTriple
 import keyvalue.stemmer as Stemmer
+import sys
 
 
 # Make connections to KeyValue
@@ -10,17 +11,23 @@ kv_images = KeyValue.SqliteKeyValue("sqlite_images.db","images")
 # Process Logic.
 imageLine = ParseTriple.ParseTriples('./dataset/images.ttl')
 labelLine = ParseTriple.ParseTriples('./dataset/labels_en.ttl')
+repeatedWords = {}
 
-print(labelLine.getNext()[2].split()) # Para obtener las palabras
+for i in range(int(sys.argv[1])):
+    imageTriple = imageLine.getNext()
+    if imageTriple[1] == 'http://xmlns.com/foaf/0.1/depiction':
+        kv_images.put(imageTriple[0], imageTriple[2])
 
-# for i in range(1000):
-#     imageTriple = imageLine.getNext()
-#     if imageTriple[1] == 'http://xmlns.com/foaf/0.1/depiction':
-#         kv_images.put(imageTriple[0], imageTriple[2])
-
-#     labelTriple = labelLine.getNext()
-#     if labelTriple[1] == 'http://www.w3.org/2000/01/rdf-schema#label':
-#         kv_labels.putSort(labelTriple[0], 0, labelTriple)
+    labelTriple = labelLine.getNext()
+    if labelTriple[1] == 'http://www.w3.org/2000/01/rdf-schema#label':
+        labelWords = Stemmer.stem(labelTriple[2]).split()
+        for word in labelWords:
+            if word not in repeatedWords:
+                kv_labels.putSort(word, str(0), labelTriple[0])
+                repeatedWords[word] = 1
+            else:
+                kv_labels.putSort(word, str(repeatedWords[word]), labelTriple[0])
+                repeatedWords[word] += 1
 
 # Close KeyValues Storages
 kv_labels.close()
