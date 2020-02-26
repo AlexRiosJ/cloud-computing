@@ -15,9 +15,9 @@ for word in sys.argv[1:]:
     for wiki in wikis:
         wiki = wiki[0]
         if wiki is not None:
-            url = kv_images.get(wiki)[0][0]
-            if url is not None:
-                urls.add(url)
+            url = kv_images.get(wiki)
+            if url is not None and len(url) > 0:
+                urls.add(url[0][0])
 
 print(list(urls))
 

@@ -2,3 +2,4 @@ dataset
 venv
 .vscode
 *.db
+__pycache__
