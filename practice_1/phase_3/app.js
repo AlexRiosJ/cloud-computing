@@ -75,7 +75,7 @@ app.get('/search/:word', function(req, res) {
 
 //INIT Logic
 var images = new dynamoDbTable('images');
-var terms = new dynamoDbTable('terms');
+var terms = new dynamoDbTable('labels');
 
 images.init(
     function(){
@@ -88,4 +88,5 @@ images.init(
     }    
 );
 
+// app.listen(3000, () => console.log(`Listening on port http://127.0.0.1:3000!`));
 module.exports = app;
