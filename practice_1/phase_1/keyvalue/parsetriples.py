@@ -19,7 +19,7 @@ class ParseTriples():
             print(line)
             return None
         
-        m = re.match('<(.+)>\s*<(.+)>\s*[<"](.+)[>"]',line.strip())
+        m = re.match('<(.+)>\\s*<(.+)>\\s*[<"](.+)[>"]',line.strip())
         if(m):
             return m.group(1),m.group(2),m.group(3)
         else:
