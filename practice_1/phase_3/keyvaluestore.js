@@ -16,7 +16,6 @@ function keyvaluestore(table) {
 keyvaluestore.prototype.init = function (whendone) {
 
   var tableName = this.tableName;
-  var self = this;
 
   var params = {
     TableName: tableName
@@ -40,61 +39,39 @@ keyvaluestore.prototype.init = function (whendone) {
  * 
  * Callback returns a list of objects with keys "inx" and "value"
  */
-
 keyvaluestore.prototype.get = function (search, callback) {
   var self = this;
 
-  if (self.cache.get(search))
+  if (self.cache.get(search)) {
     callback(null, self.cache.get(search));
-  else {
+  } else {
 
-    /*
-     * 
-     * La función QUERY debe generar un arreglo de objetos JSON son cada
-     * una de los resultados obtenidos. (inx, value, key).
-     * Al final este arreglo debe ser insertado al cache. Y llamar a callback
-     * 
-     * Ejemplo:
-     *    var items = [];
-     *    items.push({"inx": data.Items[0].inx.N, "value": data.Items[0].value.S, "key": data.Items[0].key});
-     *    self.cache.set(search, items)
-     *    callback(err, items);
-     */
-
-    if (this.tableName == 'images') {
-      let params = {
-        TableName: this.tableName,
-        ExpressionAttributeNames: {
-          '#keyw': 'keyword',
-          '#murl': 'value'
-        },
-        ExpressionAttributeValues: {
-          ":key": { S: search }
-        },
-        KeyConditionExpression: '#keyw = :key',
-        ProjectionExpression: '#murl, #keyw'
-      };
-
-      db.query(params, (err, data) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(data);
-          let items = [];
-          for(let item in data.Items) {
-            console.log(item);
-            items.push({
-              "keyword": item.keyword,
-              "value": item.url.S
-            });
-          }
-          self.cache.set(search, items);
-          callback(null, items);
-        };
+    let params = {
+      TableName: this.tableName,
+      KeyConditionExpression: "#key = :keyword",
+      ExpressionAttributeNames: {
+        "#key": "keyword"
+      },
+      ExpressionAttributeValues: {
+        ":keyword": { S: search }
       }
-      );
-    }
+    };
 
+    db.query(params, (err, data) => {
+      if (err) {
+        console.log(err);
+      } else {
+        let items = [];
+        for (let item of data.Items) {
+          items.push({
+            "keyword": item.keyword,
+            "value": item.value.S
+          });
+        }
+        self.cache.set(search, items);
+        callback(null, items);
+      };
+    });
   }
 };
 

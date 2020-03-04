@@ -31,15 +31,32 @@ $(document).ready(function () {
 
   });
 
-  function renderQueryResults(data) {
 
+  function renderQueryResults(data) {
+    images = [];
     if (data.error != undefined) {
       $("#status").html("Error: " + data.error);
     } else {
+      currentIndex = 0;
       $("#status").html("" + data.num_results + " result(s)");
+      console.log(data)
+      let maxImagesToRender = (data.num_results >= 4) ? 4 : data.num_results;
+      // for (i = 0; i < maxImagesToRender; i++) {
+      //   images = data.results;
+      //   $(`#img${i}`).attr("src", images[i]);
+      // }
 
-      $("#next").show();
-      $("#previous").show();
+      for(let i in data.results) {
+        $(`#url-${i}`).attr("src", data.results[i]);
+      }
+
+      // for (; i <= 3; i++) {
+      //   $(`#img${i}`).hide();
+      // }
+
+      // if (data.num_results > 4) {
+      //   $("#next").show();
+      // }
 
     }
   }
