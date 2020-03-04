@@ -14,5 +14,6 @@ label_line = ParseTriple.ParseTriples("./dataset/labels_en.ttl")
 
 quantity = int(sys.argv[1])
 
-kv_images.put_many_images(image_line, quantity)
-kv_labels.put_many_labels(label_line, quantity, Stemmer)
+value_set = set()
+kv_images.put_many_images(image_line, quantity, value_set)
+kv_labels.put_many_labels(label_line, quantity, value_set, Stemmer)

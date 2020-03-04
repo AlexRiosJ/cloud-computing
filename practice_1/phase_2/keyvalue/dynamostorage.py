@@ -45,12 +45,13 @@ class DynamoStorage():
 
         self.table = self.dynamodb.Table(table_name) # pylint: disable=maybe-no-member
 
-    def put_many_images(self, image_line, quantity):
+    def put_many_images(self, image_line, quantity, value_set):
         with self.table.batch_writer() as batch:
             repeated = {}
             for _ in range(quantity):
                 image_triple = image_line.getNext()
                 if image_triple[1] == "http://xmlns.com/foaf/0.1/depiction":
+                    value_set.add(image_triple[0])
                     if image_triple[0] not in repeated:
                         batch.put_item(
                             Item={
@@ -70,7 +71,7 @@ class DynamoStorage():
                         )
                         repeated[image_triple[0]] += 1
 
-    def put_many_labels(self, label_line, quantity, Stemmer):
+    def put_many_labels(self, label_line, quantity, value_set, Stemmer):
         with self.table.batch_writer() as batch:
             repeated = {}
             for _ in range(quantity):
@@ -78,24 +79,25 @@ class DynamoStorage():
                 if label_triple[1] == "http://www.w3.org/2000/01/rdf-schema#label":
                     label_words = Stemmer.stem(label_triple[2]).split()
                     for word in label_words:
-                        if word not in repeated:
-                            batch.put_item(
-                                Item={
-                                    "keyword": word,
-                                    "inx": 0,
-                                    "value": label_triple[0],
-                                }
-                            )
-                            repeated[word] = 1
-                        else:
-                            batch.put_item(
-                                Item={
-                                    "keyword": word,
-                                    "inx": repeated[word],
-                                    "value": label_triple[0],
-                                }
-                            )
-                            repeated[word] += 1
+                        if label_triple[0] in value_set:
+                            if word not in repeated:
+                                batch.put_item(
+                                    Item={
+                                        "keyword": word,
+                                        "inx": 0,
+                                        "value": label_triple[0],
+                                    }
+                                )
+                                repeated[word] = 1
+                            else:
+                                batch.put_item(
+                                    Item={
+                                        "keyword": word,
+                                        "inx": repeated[word],
+                                        "value": label_triple[0],
+                                    }
+                                )
+                                repeated[word] += 1
 
     def get(self, key):
         res = self.table.query(
