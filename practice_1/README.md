@@ -78,4 +78,4 @@ Para probar la aplicación corre los siguientes comandos:
 ./phase_3$ npm install
 ./phase_3$ npm start
 ```
-Una vez corriendo en `http://localhost:3000` se podrán hacer consultas de una varias palabras y se mostrarán las imágenes que correspondan y que existan en la base de datos de **DynamoDB**.
+Una vez corriendo en `http://localhost:3000` se podrán hacer consultas de una a varias palabras y se mostrarán las imágenes que correspondan y que existan en la base de datos de **DynamoDB**.
